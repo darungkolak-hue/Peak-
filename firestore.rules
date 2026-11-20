@@ -1,0 +1,110 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidLyricProject(data) {
+      return data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128 &&
+             data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+             data.audioDisplayName is string && data.audioDisplayName.size() <= 200 &&
+             data.localAudioPath is string && data.localAudioPath.size() <= 600 &&
+             data.localBackgroundPath is string && data.localBackgroundPath.size() <= 600 &&
+             data.backgroundPresetKey in ['cinematic_rain', 'concert_neon', 'sunset_aesthetic', 'minimal_dark'] &&
+             data.durationMs is int && data.durationMs >= 0 && data.durationMs <= 3600000 &&
+             data.bpm is int && data.bpm >= 0 && data.bpm <= 300 &&
+             data.detectedMood is string && data.detectedMood.size() >= 1 && data.detectedMood.size() <= 40 &&
+             data.presetName is string && data.presetName.size() >= 1 && data.presetName.size() <= 50 &&
+             data.fontStyle is string && data.fontStyle.size() >= 1 && data.fontStyle.size() <= 50 &&
+             data.fontSizeSp is number && data.fontSizeSp >= 12 && data.fontSizeSp <= 64 &&
+             data.textColorHex is string && data.textColorHex.size() >= 4 && data.textColorHex.size() <= 16 &&
+             data.highlightColorHex is string && data.highlightColorHex.size() >= 4 && data.highlightColorHex.size() <= 16 &&
+             data.textPosition in ['TOP', 'CENTER', 'BOTTOM'] &&
+             data.textAnimation in ['FADE_IN', 'ZOOM_IN', 'BLUR_REVEAL', 'SMOOTH_SLIDE', 'WORD_POP'] &&
+             data.textShadowIntensity is number && data.textShadowIntensity >= 0 && data.textShadowIntensity <= 1 &&
+             data.blurIntensity is number && data.blurIntensity >= 0 && data.blurIntensity <= 1 &&
+             data.glowIntensity is number && data.glowIntensity >= 0 && data.glowIntensity <= 1 &&
+             data.wordHighlightEnabled is bool &&
+             data.syncOffsetMs is int && data.syncOffsetMs >= -5000 && data.syncOffsetMs <= 5000 &&
+             data.slowMotionEnabled is bool &&
+             data.beatFlashEnabled is bool &&
+             data.lyricLines is list && data.lyricLines.size() <= 300 &&
+             (data.lyricLines.size() == 0 || data.lyricLines[0] is map) &&
+             data.sceneMarkers is list && data.sceneMarkers.size() <= 120 &&
+             (data.sceneMarkers.size() == 0 || data.sceneMarkers[0] is map) &&
+             data.waveformBars is list && data.waveformBars.size() <= 120 &&
+             (data.waveformBars.size() == 0 || data.waveformBars[0] is number) &&
+             data.lastExportedPath is string && data.lastExportedPath.size() <= 600;
+    }
+
+    match /users/{userId}/projects/{projectId} {
+      allow list: if isSignedIn() && request.auth.uid == userId;
+      allow get: if isSignedIn() && request.auth.uid == userId && isValidId(projectId);
+
+      allow create: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       isValidId(projectId) &&
+                       incoming().userId == request.auth.uid &&
+                       incoming().keys().hasAll([
+                         'userId', 'title', 'audioDisplayName', 'localAudioPath',
+                         'localBackgroundPath', 'backgroundPresetKey', 'durationMs', 'bpm',
+                         'detectedMood', 'presetName', 'fontStyle', 'fontSizeSp',
+                         'textColorHex', 'highlightColorHex', 'textPosition', 'textAnimation',
+                         'textShadowIntensity', 'blurIntensity', 'glowIntensity',
+                         'wordHighlightEnabled', 'syncOffsetMs', 'slowMotionEnabled',
+                         'beatFlashEnabled', 'lyricLines', 'sceneMarkers', 'waveformBars',
+                         'lastExportedPath', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'title', 'audioDisplayName', 'localAudioPath',
+                         'localBackgroundPath', 'backgroundPresetKey', 'durationMs', 'bpm',
+                         'detectedMood', 'presetName', 'fontStyle', 'fontSizeSp',
+                         'textColorHex', 'highlightColorHex', 'textPosition', 'textAnimation',
+                         'textShadowIntensity', 'blurIntensity', 'glowIntensity',
+                         'wordHighlightEnabled', 'syncOffsetMs', 'slowMotionEnabled',
+                         'beatFlashEnabled', 'lyricLines', 'sceneMarkers', 'waveformBars',
+                         'lastExportedPath', 'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().createdAt is timestamp && incoming().createdAt <= request.time &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       isValidLyricProject(incoming());
+
+      allow update: if isSignedIn() &&
+                       request.auth.uid == userId &&
+                       isValidId(projectId) &&
+                       isValidLyricProject(incoming()) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt is timestamp && incoming().updatedAt <= request.time &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'title', 'audioDisplayName', 'localAudioPath',
+                         'localBackgroundPath', 'backgroundPresetKey', 'durationMs', 'bpm',
+                         'detectedMood', 'presetName', 'fontStyle', 'fontSizeSp',
+                         'textColorHex', 'highlightColorHex', 'textPosition', 'textAnimation',
+                         'textShadowIntensity', 'blurIntensity', 'glowIntensity',
+                         'wordHighlightEnabled', 'syncOffsetMs', 'slowMotionEnabled',
+                         'beatFlashEnabled', 'lyricLines', 'sceneMarkers', 'waveformBars',
+                         'lastExportedPath', 'updatedAt'
+                       ]);
+
+      allow delete: if isSignedIn() && request.auth.uid == userId && isValidId(projectId);
+    }
+  }
+}

@@ -1,0 +1,166 @@
+{
+  "entities": {
+    "LyricProject": {
+      "title": "LyricProject",
+      "description": "A LYRIX AI lyric video project with transcribed word-level lyrics, visual presets, beat-synced scene markers, and waveform envelope.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated owner UID"
+        },
+        "title": {
+          "type": "string",
+          "description": "Project title"
+        },
+        "audioDisplayName": {
+          "type": "string",
+          "description": "Original uploaded audio/video filename"
+        },
+        "localAudioPath": {
+          "type": "string",
+          "description": "Device-local cached media filename"
+        },
+        "localBackgroundPath": {
+          "type": "string",
+          "description": "Optional device-local background image/video path"
+        },
+        "backgroundPresetKey": {
+          "type": "string",
+          "enum": ["cinematic_rain", "concert_neon", "sunset_aesthetic", "minimal_dark"]
+        },
+        "durationMs": {
+          "type": "integer",
+          "description": "Total audio duration in milliseconds"
+        },
+        "bpm": {
+          "type": "integer",
+          "description": "Detected or AI-estimated tempo in BPM"
+        },
+        "detectedMood": {
+          "type": "string",
+          "description": "AI-detected song mood"
+        },
+        "presetName": {
+          "type": "string",
+          "description": "Selected visual lyric preset name"
+        },
+        "fontStyle": {
+          "type": "string",
+          "description": "Selected font family name"
+        },
+        "fontSizeSp": {
+          "type": "number",
+          "description": "Lyric font size in sp"
+        },
+        "textColorHex": {
+          "type": "string",
+          "description": "Primary lyric text hex color"
+        },
+        "highlightColorHex": {
+          "type": "string",
+          "description": "Active word highlight hex color"
+        },
+        "textPosition": {
+          "type": "string",
+          "enum": ["TOP", "CENTER", "BOTTOM"]
+        },
+        "textAnimation": {
+          "type": "string",
+          "enum": ["FADE_IN", "ZOOM_IN", "BLUR_REVEAL", "SMOOTH_SLIDE", "WORD_POP"]
+        },
+        "textShadowIntensity": {
+          "type": "number",
+          "description": "Text drop shadow intensity 0.0..1.0"
+        },
+        "blurIntensity": {
+          "type": "number",
+          "description": "Background and text blur intensity 0.0..1.0"
+        },
+        "glowIntensity": {
+          "type": "number",
+          "description": "Lyric neon glow intensity 0.0..1.0"
+        },
+        "wordHighlightEnabled": {
+          "type": "boolean",
+          "description": "Whether active sung words are highlighted"
+        },
+        "syncOffsetMs": {
+          "type": "integer",
+          "description": "Global lyric timing offset in milliseconds"
+        },
+        "slowMotionEnabled": {
+          "type": "boolean",
+          "description": "Whether slow-motion pacing is enabled on key sections"
+        },
+        "beatFlashEnabled": {
+          "type": "boolean",
+          "description": "Whether beat-synced background flash/transitions are enabled"
+        },
+        "lyricLines": {
+          "type": "array",
+          "description": "Synchronized lyric lines with word-level timestamps"
+        },
+        "sceneMarkers": {
+          "type": "array",
+          "description": "Beat-synced scene transition and slow-motion markers"
+        },
+        "waveformBars": {
+          "type": "array",
+          "description": "Normalized RMS waveform amplitude bars"
+        },
+        "lastExportedPath": {
+          "type": "string",
+          "description": "Last exported MP4 file path on device"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on creation (FieldValue.serverTimestamp())"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp on update (FieldValue.serverTimestamp())"
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "audioDisplayName",
+        "localAudioPath",
+        "localBackgroundPath",
+        "backgroundPresetKey",
+        "durationMs",
+        "bpm",
+        "detectedMood",
+        "presetName",
+        "fontStyle",
+        "fontSizeSp",
+        "textColorHex",
+        "highlightColorHex",
+        "textPosition",
+        "textAnimation",
+        "textShadowIntensity",
+        "blurIntensity",
+        "glowIntensity",
+        "wordHighlightEnabled",
+        "syncOffsetMs",
+        "slowMotionEnabled",
+        "beatFlashEnabled",
+        "lyricLines",
+        "sceneMarkers",
+        "waveformBars",
+        "lastExportedPath",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/projects/{projectId}": {
+      "schema": { "$ref": "#/entities/LyricProject" },
+      "description": "User-scoped LYRIX AI video editing projects"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "LYRIX AI",
+  "description": "AI-powered automatic lyric video editor with vocal transcription, word-level sync, cinematic presets, and MP4 export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
